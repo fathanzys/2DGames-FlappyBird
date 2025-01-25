@@ -93,16 +93,16 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Flappy Bird')
 
 # Load Assets
-BACKGROUND = pygame.image.load('assets/sprites/snowjpeg.jpeg').convert()
+BACKGROUND = pygame.image.load('assets/sprites/background-day.png').convert()
 BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 BEGIN_IMAGE = pygame.image.load('assets/sprites/message.png').convert_alpha()
 
 # Load Bird Character Images
 CHARACTER_IMAGES = {
     "blue": [
-        pygame.image.load('assets/sprites/faathir_1.png').convert_alpha(),
-        pygame.image.load('assets/sprites/faathir_2.png').convert_alpha(),
-        pygame.image.load('assets/sprites/faathir_3.png').convert_alpha()
+        pygame.image.load('assets/sprites/bluebird-downflap.png').convert_alpha(),
+        pygame.image.load('assets/sprites/bluebird-midflap.png').convert_alpha(),
+        pygame.image.load('assets/sprites/bluebird-upflap.png').convert_alpha()
     ],
     "red": [
         pygame.image.load('assets/sprites/redbird-upflap.png').convert_alpha(),
@@ -115,11 +115,11 @@ CHARACTER_IMAGES = {
         pygame.image.load('assets/sprites/yellowbird-downflap.png').convert_alpha()
     ]
 }
-CHARACTER_IMAGES["blue"] = [
-    pygame.transform.scale(pygame.image.load('assets/sprites/faathir_1.png').convert_alpha(), (50, 50)),
-    pygame.transform.scale(pygame.image.load('assets/sprites/faathir_2.png').convert_alpha(), (50, 50)),
-    pygame.transform.scale(pygame.image.load('assets/sprites/faathir_3.png').convert_alpha(), (50, 50))
-]
+#CHARACTER_IMAGES["blue"] = [
+#    pygame.transform.scale(pygame.image.load('assets/sprites/bluebird-downflap.png').convert_alpha(), (50, 50)),
+#   pygame.transform.scale(pygame.image.load('assets/sprites/bluebird-midflap.png').convert_alpha(), (50, 50)),
+#    pygame.transform.scale(pygame.image.load('assets/sprites/bluebird-upflap.png').convert_alpha(), (50, 50))
+#]
 
 # Character Selection Screen
 def select_character():
