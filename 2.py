@@ -2,11 +2,13 @@ import pygame
 import random
 import time
 from pygame.locals import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
 
 # Game Constants
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
-SPEED = 20
+SPEED = 10
 GRAVITY = 2.5
 GAME_SPEED = 15
 
@@ -45,24 +47,36 @@ class Bird(pygame.sprite.Sprite):
     def bump(self):
         self.speed = -SPEED
 
-# Pipe Class
+# OpenGL-based Pipe Class
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, inverted, xpos, ysize):
         super().__init__()
-        self.image = pygame.image.load('assets/sprites/pipe-green.png').convert_alpha()
-        self.image = pygame.transform.scale(self.image, (PIPE_WIDTH, PIPE_HEIGHT))
-        self.rect = self.image.get_rect()
-        self.rect[0] = xpos
+        self.xpos = xpos
+        self.ysize = ysize
+        self.inverted = inverted
+        self.width = PIPE_WIDTH
+        self.height = ysize if not inverted else PIPE_HEIGHT - ysize
+
+        # Gambar pipa
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill((0, 255, 0))  # Warna hijau
+
+        # Atur posisi pipa berdasarkan orientasi
         if inverted:
-            self.image = pygame.transform.flip(self.image, False, True)
-            self.rect[1] = -(self.rect[3] - ysize)
+            self.rect = self.image.get_rect(topleft=(xpos, 0))  # Pipa terbalik menempel di atas
         else:
-            self.rect[1] = SCREEN_HEIGHT - ysize
-        self.mask = pygame.mask.from_surface(self.image)
+            self.rect = self.image.get_rect(topleft=(xpos, SCREEN_HEIGHT - self.height))  # Pipa normal menempel di bawah
+
+        self.scored = False  # Menandai apakah skor sudah dihitung
 
     def update(self):
-        self.rect[0] -= GAME_SPEED
+        # Pindahkan pipa ke kiri
+        self.rect.x -= GAME_SPEED
 
+    def is_off_screen(self):
+        # Cek apakah pipa keluar dari layar
+        return self.rect.right < 0
+    
 # Ground Class
 class Ground(pygame.sprite.Sprite):
     def __init__(self, xpos):
@@ -82,9 +96,10 @@ def is_off_screen(sprite):
     return sprite.rect[0] < -sprite.rect[2]
 
 def get_random_pipes(xpos):
-    size = random.randint(100, 300)
-    pipe = Pipe(False, xpos, size)
-    pipe_inverted = Pipe(True, xpos, SCREEN_HEIGHT - size - PIPE_GAP)
+    # Tentukan ukuran pipa secara acak
+    size = random.randint(100, SCREEN_HEIGHT - PIPE_GAP - 200)
+    pipe = Pipe(False, xpos, size)  # Pipa normal (di bawah)
+    pipe_inverted = Pipe(True, xpos, SCREEN_HEIGHT - size - PIPE_GAP)  # Pipa terbalik (di atas)
     return pipe, pipe_inverted
 
 # Game Initialization
@@ -211,13 +226,19 @@ while True:
     screen.blit(BACKGROUND, (0, 0))
     bird_group.update()
     pipe_group.update()
+    pipe_group.draw(screen)
     ground_group.update()
 
     # Check for Passing Pipes to Update Score
     for pipe in pipe_group:
-        if pipe.rect.right < bird.rect.left and not hasattr(pipe, 'scored'):
+        if pipe.is_off_screen():
+            pipe_group.remove(pipe)
+            pipes = get_random_pipes(SCREEN_WIDTH * 2)
+            pipe_group.add(pipes[0])
+            pipe_group.add(pipes[1])
+        elif not pipe.scored and pipe.rect.right < bird.rect.left:
             score += 1
-            pipe.scored = True
+            pipe.scored = True  # Tandai pipa sudah dihitung
 
     if is_off_screen(pipe_group.sprites()[0]):
         pipe_group.remove(pipe_group.sprites()[0])
